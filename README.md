@@ -2,9 +2,9 @@
 The initial implementation of the codeonion product code
 
 
-* Running locally
+# Running locally
 
-* * Installation to run locally
+## Installation to run locally
 
 1. Install Docker on your computer and make sure it runs properly
 2. create a project container folder. Make sure you DONT name the project container `codeonion-core` - otherwise zappa will complain.
@@ -24,8 +24,10 @@ LC_ALL=C </dev/urandom tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | head 
 11. Run the server from the `codeonion-core` folder using `python manage.py runserver`
 12. Go to http://127.0.0.1:8000 to see the page. Test that it's running locally by pasting the following URL: https://github.com/Miserlou/Zappa
 
-* * Documentation (sort of)
+## Documentation (sort of)
 See the program_flow.md of the program flow. More to come as we build it. 
 
-* * Similar product
+The Dockerfile 
+
+## Similar product
 https://requires.io 
