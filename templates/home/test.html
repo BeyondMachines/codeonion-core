@@ -1,0 +1,12 @@
+<h2>Repo Checker</h2>
+<p> {{repo_type}}</p>
+<p> {{repo}}</p>
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <input type="text" name="repo_type" class="form-control" placeholder="repo url">
+    <input type="text" name="repo" class="form-control" placeholder="repo">
+    <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
+        Scan!
+     </button>
+</form>

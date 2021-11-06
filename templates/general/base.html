@@ -1,0 +1,50 @@
+{% load static %}
+
+
+<!doctype  html>
+<html  lang="en">
+
+<head>
+  <title>CodeFox</title>
+  <!-- triggering an asynchronous stylesheet download
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" media="none" onload="if(media!='all')media='all'">
+  <link rel="stylesheet" href="{% static 'css/all.min.css' %}" media="none" onload="if(media!='all')media='all'">
+  -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <!--
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/icon/favicon.ico' %}"/>
+  <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+  <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+  <link  rel="stylesheet" href="{% static 'css/beyondmachines_css.css' %}">
+
+  -->
+</head>
+
+<body>
+  <!-- Bootstrap JavaScript -->
+
+  <div class="container-fluid container-lg">
+    <div class="row newtextverydark">
+      <div class="col-12">
+
+      </div>
+    </div>
+</div>
+
+<div class="container-fluid container-lg">
+
+  <div class="row justify-content-center">
+    <div class="col-12 col-sm">
+      {% block main %}
+      {% endblock %}
+    </div>
+  </div>
+</div>
+
+{% block footer %}
+{% endblock %}
+
+</body>
+</html>
+

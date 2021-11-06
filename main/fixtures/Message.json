@@ -1,0 +1,20 @@
+[
+{
+    "model": "main.message",
+    "pk": 1,
+    "fields": {
+        "message_title": "scope_message",
+        "message_text": "At this moment we are working only with GitHub repositories.",
+        "message_created_date": "2021-07-18"
+    }
+},
+{
+    "model": "main.message",
+    "pk": 2,
+    "fields": {
+        "message_title": "url_instructons_message",
+        "message_text": "Please enter your GitHub repo URL, eg \"https://github.com/user/repo\"",
+        "message_created_date": "2021-07-18"
+    }
+}
+]

@@ -1,3 +1,18 @@
+# Zappa dev template
+*-template-*.json
+Application_Setup.md
+
+# Django Secret keys
+secret_key.txt
+github_key.txt
+
+#postgress stuff
+postgres_env.json
+
+# Zappa settings
+zappa_settings.json
+zappashell.sh
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

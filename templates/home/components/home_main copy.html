@@ -1,0 +1,92 @@
+<h2>Repo Checker</h2>
+<p> {{scope_message}}</p>
+<p> {{url_instructons_message}}</p>
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <input type="text" name="repository" class="form-control" placeholder="repo to scan">
+    <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
+        Scan!
+     </button>
+</form>
+
+{{repo_scan_triggered}}
+{% if repo_scan_completed %}
+    {{repo_scan_completed}}
+    {% if repo_info %}
+        <p>{{repo_info.0.repo.repo_name}}</p>
+        <p>{{repo_info.0.repo.repo_primary_language}}</p>
+        <p>{{repo_info.0.repo.repo_url}}</p>
+        <p>{{repo_info.0.repo.repo_last_checked_date}}</p>
+        <hr>    
+        <table class="table table-borderless table-hover">
+            <thead>
+                <tr>
+                    <th>Dependency Name </th>
+                    <th>Dependency Language</th>
+                    <th>Dependency URL</th>
+                    <th>Dependency License</th>
+                    <th>Last Checked</th>
+                </tr>
+            </thead>
+                <tbody>
+                    {% for row in repo_info %}
+                        <tr>
+                            <td>{{row.dependency.dependency_name}}</td>
+                            <td>{{row.dependency.dependency_language}}</td>
+                            <td>{{row.dependency.dependency_url}}</td>
+                            <td>{{row.dependency.dependency_license}}</td>
+                            <td>{{row.dependency.dependency_license_last_checked_date}}</td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+            </table>
+    {% endif %}
+{% else %}
+    {{repo_scan_completed}}
+    <div id="scan_status">{{repo_info}}</div>  
+{% endif %}
+
+
+
+<script type="text/javascript">
+
+    function showMessage(message) { // parameters: from, text
+        document.getElementById("scan_status").innerHTML = message;
+    }
+
+    async function subscribe() {
+        let response = await fetch(`/scan_dependencies/${request}`);
+        
+        while (response.statusText != '10') {
+            if (response.status == 502) {
+            // Status 502 is a connection timeout error,
+            // may happen when the connection was pending for too long,
+            // and the remote server or a proxy closed it
+            // let's reconnect
+            await subscribe();
+            } else if (response.status != 200) {
+            // An error - let's show it
+            showMessage(response.statusText);
+            // Reconnect in three second
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await subscribe();
+            } else {
+            // Get and show the message
+            let message = await response.text();
+            showMessage(message);
+            // Call subscribe() again to get the next message after 3 seconds
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            await subscribe();
+            }
+        }
+        
+  }
+
+  var request = "{{repo_info}}";
+  var repo_scan_triggered = "{{repo_scan_triggered}}";
+
+  if (repo_scan_triggered == True) {
+    subscribe();
+  }
+</script>

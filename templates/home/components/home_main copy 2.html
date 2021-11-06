@@ -1,0 +1,118 @@
+<h2>Repo Checker</h2>
+<p> {{scope_message}}</p>
+<p> {{url_instructons_message}}</p>
+
+<form method="POST" action="">
+    {% csrf_token %}
+    <input type="text" name="repository" class="form-control" placeholder="repo to scan">
+    <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
+        Scan!
+     </button>
+</form>
+
+{{repo_scan_started}}
+{{repo_scan_completed}} 
+{{repo_uuid}}
+
+<div id="response_table">
+</div>
+
+<div id="scan_status">
+</div>
+
+<script type="text/javascript">
+    // let's set up some variables
+    var repo_id = "{{repo_uuid}}"; // the object that we'll be looking for in the APIs
+    var repo_scan_started = "{{repo_scan_started}}";  // If the scan is started, go to long polling api to check when completed. 
+    var repo_scan_completed = "{{repo_scan_completed}}";  // If the scan is completed, go to collecting the results
+    var scan_id = "{{scan_response_id}}"
+
+
+    function showMessage(message) { // parameters: from, text
+        document.getElementById("scan_status").innerHTML = message;
+    }
+
+    async function subscribe() {
+        let response = await fetch(`/scan_status/${scan_id}`);
+        
+        if (response.status == 502) {
+        // Status 502 is a connection timeout error,
+        // may happen when the connection was pending for too long,
+        // and the remote server or a proxy closed it
+        // let's reconnect
+        showMessage(response.statusText);
+        } else if (response.status != 200) {
+        // An error - let's show it
+        showMessage(response.statusText);
+        // Reconnect in three second
+        } else {
+        // Get and show the message
+        let message = await response.json();
+        showMessage(message.status);
+        console.log(message.status)
+        if (message.status == 'completed') {
+            console.log("Returning true")
+            return('True')
+        }
+        else {
+            console.log(repo_scan_completed)
+        }
+        // Call subscribe() again to get the next message after 3 seconds
+
+            }
+    }
+
+    function render() {
+        url = `/repo_dependencies/${repo_id}`
+        //const json = fetch(url).then((response) => response.json()).then((status) => {return status;});
+        const json = fetch(url).then((response) => response.json()).then((results) => {return results;});
+        
+        const printResults = async () => {
+        const a = await json;
+
+        var scan_status = a.status;
+        if (scan_status == 'True') {
+            var count = Object.keys(a.results).length;
+            var tableHeader = "<table class=\"table table-borderless table-hover\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
+            var tableContent = "";
+            var tableFooter = "</tbody></table>";
+
+            // Loop through the JSON and output each row in to a string.
+            for(i = 0; i < count; i++) {
+                tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td></tr>";
+                }
+            // return the table
+            document.getElementById("response_table").innerHTML = tableHeader + tableContent + tableFooter;
+        }
+        else {
+            // get the error message
+            var results = a.results;
+            // render the error message
+            document.getElementById("response_table").innerHTML = results;
+            };
+        };
+        printResults();
+        }
+
+    if (repo_scan_started == 'True') {
+        console.log("Starting loop")
+        console.log("Repo_Scan_Started")
+        console.log(repo_scan_started)
+        console.log("Repo_Scan_Completed")
+        console.log(repo_scan_completed)
+        while (repo_scan_completed != 'True') {
+            console.log("invoking subscribe")
+            repo_scan_completed = subscribe();
+            setTimeout(function(){
+                console.log('after');
+            },3000);
+            console.log("After subscribe repo_scan_completed")
+            console.log(repo_scan_completed)
+        };
+        console.log("invoking render")
+        render();
+    }
+
+
+
+</script>
