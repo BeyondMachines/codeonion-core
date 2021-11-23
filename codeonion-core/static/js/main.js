@@ -1,44 +1,4 @@
-{% load static %}
-<h2>Repo Checker</h2>
-<p> {{scope_message}}</p>
-<p> {{url_instructons_message}}</p>
 
-<form method="POST" action="">
-    {% csrf_token %}
-    <input type="text" name="repository" class="form-control" placeholder="repo to scan">
-    <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
-        Scan!
-     </button>
-</form>
-
-{{repo_scan_started}}
-{{repo_scan_completed}} 
-{{repo_uuid}}
-
-<div id="response_table">
-    
-</div>
-
-
-        
-<div class=" d-flex align-items-center justify-content-center">
-    <div class="card d-flex " style="width: 18rem;">
-
-        <img src="{% static 'images/onion.gif' %}" class="card-img-top border-0" alt="...">
-    
-    </div> 
-</div>
-
-
-
-<div id="scan_status">
-    {% if repo_scan_started %}
-        Starting Repo Scan
-    {% endif %}
-</div>
-
- <script type="text/javascript"> 
-    // let's set up some variables
     let repo_id = "{{repo_uuid}}"; // the object that we'll be looking for in the APIs
     let repo_scan_started = "{{repo_scan_started}}";  // If the scan is started, go to long polling api to check when completed. 
     let repo_scan_completed = "{{repo_scan_completed}}";  // If the scan is completed, go to collecting the results
@@ -82,7 +42,7 @@
         console.log(a.status)
         if (scan_status == 'true') {
             var count = Object.keys(a.results).length;
-            var tableHeader = "<table class=\"table table-borderless table-hover\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
+            var tableHeader = `<table class=\"table table-borderless table-hover\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>`
             var tableContent = "";
             var tableFooter = "</tbody></table>";
 
@@ -122,6 +82,3 @@
 
     // the test code for the poll until condition is met
     // this is just a placeholder. It will eventually be a function that evaluates.
-
-
-</script> 

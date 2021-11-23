@@ -13,7 +13,12 @@ import os
 import boto3
 import botocore
 import uuid
-
+import bs4 as bs
+import urllib.request
+from selenium import webdriver
+from selenium.common.exceptions import NoSuchElementException
+from webdriver_manager.chrome import ChromeDriverManager
+import time
 # Import models
 
 from scanner.models import Dependency, Repo_Dependency_Pair, Scanned_Repo 
@@ -46,6 +51,25 @@ def check_valid_repo_url(repo_url):
     if domain in ('github.com', 'www.github.com'):
         valid_repo_url = True
         repo = 'github'
+        print('------')
+        print(repo_url)
+        #url = repo_url + "/network/dependencies"
+        
+        # ins = urllib.request.urlopen(url).read()
+        # soup = bs.BeautifulSoup(ins, 'lxml')
+        # button = soup.find("button" , {"class", "ajax-pagination-btn"}) 
+        # print(button)
+        # if button:
+        #     driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
+        #     try:
+        #        driver.get(url)
+        #        driver.find_element_by_class_name("ajax-pagination-btn")
+        #     except: 
+        #         pass  
+
+        # for span in soup.find_all("span", {"class": "text-bold"}):
+        #     a = span.text
+        #     print(a)
         return(valid_repo_url, repo, path)
     else:
         valid_repo_url = False
@@ -61,6 +85,8 @@ def check_valid_repo_url(repo_url):
 # returns: if successful, r: github repository object
 #          if not successful raises an exception that the repo is not valid, and returns the requested string path
 def open_github_repo(repository):
+    print('*****')
+    print(repository)
     repo = None
     if str(settings.LOCAL_TEST) == 'True':
         GITHUB_FILE = 'github_key.txt'
@@ -71,9 +97,12 @@ def open_github_repo(repository):
     g = Github(GITHUB_KEY)
     try:
         r = g.get_repo(repository)
+        print('/////')
+        print(r)
     except GithubException as error:
         raise Exception('You didn\'t enter a valid GitHub Repo. The URL you entered is:' + repository)
     return r
+
     # if r.language.lower() in ['python']:
     #     r1 = scan_github_repo(r)
     #     return(r1) 
@@ -216,7 +245,7 @@ def lookup_dep_license(dependency, language):
                 return(license_status, license_found)
             try:
                 license_found = json_content["info"]["license"]
-            except JSONDecodeError: 
+            except : 
                 license_found = "License Not found, please check manually"
             license_status = 0
             dep_in_db = save_dependency(dependency,language,license_found)
@@ -237,28 +266,49 @@ def get_dependency_files_from_repo(repository, language):
             file_content = contents.pop(0)
             if file_content.type == "dir":
                 contents.extend(repository.get_contents(file_content.path))  # if we find a 
+                
             else:
-                if file_content.name in ["requirements.txt","requirements.in"]:  # these are the files we are looking for (this should be pulled up from database)
+                if file_content.name in ["requirements.txt","requirements.in", "Pipfile.lock"]:  # these are the files we are looking for (this should be pulled up from database)
                     dependency_files.append(file_content)  # END of loop to search through all repo contents for dependency files
+                    
     return(dependency_files)
 
 
 # spec: receives a repository, dict of files and a language as a string, parses the files and extracts the dependencies
 # returns dict of dependencies
 def get_dependencies_from_dep_files(repository, dependency_files, language):
+    
     if language == 'python':
-        strings_to_replace = ['>=','>','<=','<']  # strings in requirements files to compare versions. All these need to be replaced below with '==' to split successfully
         dependency_list = []
         for dep in dependency_files:
-            dep_contents = repository.get_contents(dep.path)
-            requirements_string = dep_contents.decoded_content.decode().splitlines()
-            for line in requirements_string:
-                for string in strings_to_replace:
-                    line = line.replace(string, '==')
-                content_line = line.split(sep='==', maxsplit=1)[0].strip()
-                if not content_line.startswith('#') and len(content_line)>1:
-                    dependency_list.append(content_line)
-    return(dependency_list)
+            if dep.path == "Pipfile.lock":
+                pipline = []
+                
+                dep_contents = repository.get_contents(dep.path)
+                requirements_string = dep_contents.decoded_content.decode().splitlines()
+                for line in requirements_string:
+                   if line.endswith(": {"):
+                      content_line = line.split(sep='"', maxsplit=2)[1].strip()
+                      pipline.append(content_line)
+                      default = "default"
+                      develop = "develop"
+                      meta = "_meta"
+                      hash = "hash"
+                      for p in pipline:
+                         if not str(p) == default and not str(p) ==  develop and not str(p) ==  meta and not str(p) ==  hash:
+                            dependency_list.append(p)
+            if dep.path == "requirements.txt" or dep.path == "requirements.in":
+                strings_to_replace = ['>=','>','<=','<']
+                dep_contents = repository.get_contents(dep.path) 
+                requirements_string = dep_contents.decoded_content.decode().splitlines()
+                for line in requirements_string:
+                    for string in strings_to_replace:
+                        line = line.replace(string, '==')
+                    content_line = line.split(sep='==', maxsplit=1)[0].strip()
+                    if not content_line.startswith('#') and len(content_line)>1:
+                        dependency_list.append(content_line)
+                    
+    return(dependency_list) 
 
 
 # spec: receives a repository, dict of dependencies and a language as a string, invokes lookup on the license and stores the pair for repo/dependency

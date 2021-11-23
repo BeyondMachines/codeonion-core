@@ -71,7 +71,7 @@ else:
     SECRET_KEY = get_ssm_key('CODEONION_CORE_TEST_SECRET_KEY')
     # SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['ntya7jwylf.execute-api.us-east-2.amazonaws.com','127.0.0.1']
+ALLOWED_HOSTS = ['evlz5r6031.execute-api.us-west-2.amazonaws.com','127.0.0.1']
 
 # Application definition
 
@@ -82,6 +82,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_s3_storage',
 
 
 
@@ -130,50 +131,50 @@ WSGI_APPLICATION = 'codeonion-core.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
 
-if str(LOCAL_TEST) == 'True' and str(USE_POSTGRES) != 'True':
-    DB_PATH = BASE_DIR
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': os.path.join(DB_PATH, 'db.sqlite3'),
-        }
-    }
-else:
-    if str(LOCAL_TEST) == 'True' and str(USE_POSTGRES) == 'True':  # read from local files
-        import json
-        with open('postgres_env.json') as j_conf:
-            db_params = json.load(j_conf)
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': db_params["postgres_db"],
-                'USER': db_params["postgres_user"],
-                'PASSWORD': db_params["postgres_password"],
-                'HOST': db_params["postgres_host"],
-                'PORT': '5432',
-            }
-        }
-    else:  #read from environment variables
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': get_ssm_key('CODEONION_CORE_TEST_POSTGRES_DB'),
-                'USER': get_ssm_key('CODEONION_CORE_POSTGRES_USER'),
-                'PASSWORD': get_ssm_key('CODEONION_CORE_POSTGRES_PASSWORD'),
-                'HOST': get_ssm_key('CODEONION_CORE_POSTGRES_HOST'),
-                'PORT': '5432',
-            }
-        }
+# if str(LOCAL_TEST) == 'True' and str(USE_POSTGRES) != 'True':
+#     DB_PATH = BASE_DIR
+#     DATABASES = {
+#         'default': {
+#             'ENGINE': 'django.db.backends.sqlite3',
+#             'NAME': os.path.join(DB_PATH, 'db.sqlite3'),
+#         }
+#     }
+# else:
+#     if str(LOCAL_TEST) == 'True' and str(USE_POSTGRES) == 'True':  # read from local files
+#         import json
+#         with open('postgres_env.json') as j_conf:
+#             db_params = json.load(j_conf)
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#                 'NAME': db_params["postgres_db"],
+#                 'USER': db_params["postgres_user"],
+#                 'PASSWORD': db_params["postgres_password"],
+#                 'HOST': db_params["postgres_host"],
+#                 'PORT': '5432',
+#             }
+#         }
+#     else:  #read from environment variables
+#         DATABASES = {
+#             'default': {
+#                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
+#                 'NAME': get_ssm_key('CODEONION_CORE_TEST_POSTGRES_DB'),
+#                 'USER': get_ssm_key('CODEONION_CORE_POSTGRES_USER'),
+#                 'PASSWORD': get_ssm_key('CODEONION_CORE_POSTGRES_PASSWORD'),
+#                 'HOST': get_ssm_key('CODEONION_CORE_POSTGRES_HOST'),
+#                 'PORT': '5432',
+#             }
+#         }
 
 # Password validation
 # https://docs.djangoproject.com/en/3.2/ref/settings/#auth-password-validators
@@ -212,6 +213,19 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+
+STATIC_ROOT = BASE_DIR /'static'
+
+# STATICFILES_DIRS = [
+#     'codeonion-core/static'
+# ]
+
+S3_BUCKET_NAME = "code-onion-core"
+STATICFILES_STORAGE = "django_s3_storage.storage.StaticS3Storage"
+AWS_S3_BUCKET_NAME_STATIC = S3_BUCKET_NAME
+# serve the static files directly from the specified s3 bucket
+AWS_S3_CUSTOM_DOMAIN = '%s.s3.amazonaws.com' % S3_BUCKET_NAME
+STATIC_URL = "https://%s/" % AWS_S3_CUSTOM_DOMAIN
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
