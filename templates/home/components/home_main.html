@@ -10,9 +10,6 @@
      </button>
 </form>
 
-{{repo_scan_started}}
-{{repo_scan_completed}} 
-{{repo_uuid}}
 
 <div id="response_table">
 </div>
@@ -38,34 +35,34 @@
         scan_api_url = window.location.href + `/scan_status/${scan_id}`
         result_api_url = window.location.href + `/repo_dependencies/${repo_id}`
     }
-    console.log(root_url)
-    console.log(scan_api_url)
-    console.log(result_api_url)
+    // console.log(root_url)
+    // console.log(scan_api_url)
+    // console.log(result_api_url)
     let loop_counter = 0
     let continue_marker = 'not'
 
     async function subscribe(loop_counter) {
         response = await fetch(scan_api_url)
         json = await response.json()
-        console.log(json.status)
-        console.log(loop_counter)
-        if ((json.status == 'complete') || (loop_counter > 100 ))
+        // console.log(json.status)
+        // console.log(loop_counter)
+        if ((json.status == 'complete') || (loop_counter > 30 )) 
             return json.status
         else {
-            document.getElementById("scan_status").innerHTML = 'Scanning the repo for ' + 3*loop_counter + ' seconds';
-            await new Promise(resolve => setTimeout(resolve, 3000));
+            document.getElementById("scan_status").innerHTML = 'Scanning the repo for ' + loop_counter + ' seconds';
+            await new Promise(resolve => setTimeout(resolve, 1000));
             loop_counter += 1
             await subscribe(loop_counter);
         }
     }
 
     async function render() {
-        console.log('starting_render')
+        // console.log('starting_render')
         response = await fetch(result_api_url)
         a = await response.json()
-        console.log(a)
+        // console.log(a)
         let scan_status = a.status;
-        console.log(a.status)
+        // console.log(a.status)
         if (scan_status == 'true') {
             var count = Object.keys(a.results).length;
             var tableHeader = "<table class=\"table table-borderless table-hover\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
@@ -89,11 +86,11 @@
 
 
        async function run() {
-           console.log('starting run',repo_scan_started)
+           // console.log('starting run',repo_scan_started)
            if ((repo_scan_started == 'True') && (scan_id != 'None')) {
-                console.log(repo_scan_started)
+                // console.log(repo_scan_started)
                 continue_marker = await subscribe(loop_counter)
-                console.log(continue_marker)
+                // console.log(continue_marker)
            }
            if (repo_scan_started == 'True') {
             render()
