@@ -27,7 +27,20 @@ LC_ALL=C </dev/urandom tr -dc 'A-Za-z0-9!"#$%&()*+,-./:;<=>?@[\]^_`{|}~' | head 
 ## Documentation (sort of)
 See the program_flow.md of the program flow. More to come as we build it. 
 
-The Dockerfile 
+## The Dockerfile 
+The dockerfile is used to run the zappa tool properly regardless of the underlying platform (hopefully)
+
+
+To build the docker image use the following command:
+`docker build -t zappa-docker-image .`
+To run the docker image use the `zappashell.sh` script. 
+It will run the docker image and drop you in the command line of zappa. To check that everything is running run `zappa status`.
+
+**Important prerequisites for the docker image to run properly**
+1. The path in the Dockerfile on the line `WORKDIR /var/codeonion/codeonion-core` must be equal to the path in `zappashell.zh` in this section `"$(pwd):/var/codeonion/codeonion-core"`. Otherwise the docker won't be able to see your local folder with code to deploy it. 
+2. The AWS profile in your ~/.aws/credentials must be named exactly as it's referenced in `zappashell.sh` in  the section `-e AWS_PROFILE=zappa `. Otherwise zappa won't be able to authenticate to AWS even if you have created a proper user. 
+ 
+
 
 ## Similar product
 https://requires.io 

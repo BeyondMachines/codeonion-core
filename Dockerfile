@@ -3,9 +3,9 @@
 FROM lambci/lambda:build-python3.8
 
 # Make this the default working directory
-WORKDIR /var/codefox-project/codefox
+WORKDIR /var/codeonion/codeonion-core
 
-ENV VIRTUAL_ENV=/var/codefox-project
+ENV VIRTUAL_ENV=/var/codeonion
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 
