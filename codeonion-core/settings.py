@@ -62,13 +62,13 @@ else:
 
 #  LOCAL_CONFIG = os.getenv('LOCAL_CONFIG', True)  # this should be removed for pulling info from AWS Parameter Store
 
-# SECURITY WARNING: keep the secret key used in production secret!
+# SECURITY WARNING: keep the secret key used in production secret! We are reading the production key from SSM parameter store.
 if str(LOCAL_TEST) == 'True':
     SECRET_FILE = os.path.join(BASE_DIR, 'secret_key.txt')
     with open(SECRET_FILE) as f:
         SECRET_KEY = f.read().strip()
 else:
-    SECRET_KEY = get_ssm_key('CODEONION_CORE_TEST_SECRET_KEY')
+    SECRET_KEY = get_ssm_key('CODEFOX_TEST_SECRET_KEY')
     # SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
 ALLOWED_HOSTS = ['ntya7jwylf.execute-api.us-east-2.amazonaws.com','127.0.0.1']
@@ -167,10 +167,10 @@ else:
         DATABASES = {
             'default': {
                 'ENGINE': 'django.db.backends.postgresql_psycopg2',
-                'NAME': get_ssm_key('CODEONION_CORE_TEST_POSTGRES_DB'),
-                'USER': get_ssm_key('CODEONION_CORE_POSTGRES_USER'),
-                'PASSWORD': get_ssm_key('CODEONION_CORE_POSTGRES_PASSWORD'),
-                'HOST': get_ssm_key('CODEONION_CORE_POSTGRES_HOST'),
+                'NAME': get_ssm_key('CODEFOX_TEST_POSTGRES_DB'),
+                'USER': get_ssm_key('CODEFOX_TEST_POSTGRES_USER'),
+                'PASSWORD': get_ssm_key('CODEFOX_TEST_POSTGRES_PASSWORD'),
+                'HOST': get_ssm_key('CODEFOX_TEST_POSTGRES_HOST'),
                 'PORT': '5432',
             }
         }

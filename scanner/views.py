@@ -59,7 +59,7 @@ def check_valid_repo_url(repo_url):
 # returns the repo connection. Otherwise raises an exception
 # receives: repository: String ((the path part of the URL (after the github.com))
 # returns: if successful, r: github repository object
-#          if not successful raises an exception that the repo is not valid, and returns the requested string path
+#          if not successful raises an exception that the repo is not valid, and returns the requested string  path
 def open_github_repo(repository):
     repo = None
     if str(settings.LOCAL_TEST) == 'True':
