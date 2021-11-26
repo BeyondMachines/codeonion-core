@@ -13,12 +13,7 @@ import os
 import boto3
 import botocore
 import uuid
-import bs4 as bs
-import urllib.request
-from selenium import webdriver
-from selenium.common.exceptions import NoSuchElementException
-from webdriver_manager.chrome import ChromeDriverManager
-import time
+
 # Import models
 
 from scanner.models import Dependency, Repo_Dependency_Pair, Scanned_Repo 
@@ -53,23 +48,7 @@ def check_valid_repo_url(repo_url):
         repo = 'github'
         print('------')
         print(repo_url)
-        #url = repo_url + "/network/dependencies"
-        
-        # ins = urllib.request.urlopen(url).read()
-        # soup = bs.BeautifulSoup(ins, 'lxml')
-        # button = soup.find("button" , {"class", "ajax-pagination-btn"}) 
-        # print(button)
-        # if button:
-        #     driver = webdriver.Chrome(executable_path=ChromeDriverManager().install())
-        #     try:
-        #        driver.get(url)
-        #        driver.find_element_by_class_name("ajax-pagination-btn")
-        #     except: 
-        #         pass  
-
-        # for span in soup.find_all("span", {"class": "text-bold"}):
-        #     a = span.text
-        #     print(a)
+       
         return(valid_repo_url, repo, path)
     else:
         valid_repo_url = False
@@ -283,7 +262,6 @@ def get_dependencies_from_dep_files(repository, dependency_files, language):
         for dep in dependency_files:
             if dep.path == "Pipfile.lock":
                 pipline = []
-                
                 dep_contents = repository.get_contents(dep.path)
                 requirements_string = dep_contents.decoded_content.decode().splitlines()
                 for line in requirements_string:
