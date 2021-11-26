@@ -11,7 +11,6 @@ postgres_env.json
 
 # Zappa settings
 zappa_settings.json
-zappashell.sh
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
