@@ -71,7 +71,7 @@ else:
     SECRET_KEY = get_ssm_key('CODEFOX_TEST_SECRET_KEY')
     # SECRET_KEY = os.getenv('DJANGO_SECRET_KEY')
 
-ALLOWED_HOSTS = ['ntya7jwylf.execute-api.us-east-2.amazonaws.com','127.0.0.1']
+ALLOWED_HOSTS = ['ntya7jwylf.execute-api.us-east-2.amazonaws.com','127.0.0.1','test.codeonion.net','www.codeonion.net','app.codeonion.net','codeonion.net']
 
 # Application definition
 
