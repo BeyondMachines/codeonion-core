@@ -171,7 +171,7 @@ def scan_github_repo(repo_name):
     else:
         print("no dependency files")
         dep_in_db = False
-        dep_in_db_error_message = "Python repo" + repository.full_name + "doesn't have requirements.txt or requirements.in"
+        dep_in_db_error_message = "Python repo" + repository.full_name + " doesn't have requirements.txt, requirements.in or Pipfile.lock"
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error=True)
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error_message=dep_in_db_error_message)
@@ -238,7 +238,7 @@ def get_dependency_files_from_repo(repository, language):
             if file_content.type == "dir":
                 contents.extend(repository.get_contents(file_content.path))  # if we find a 
             else:
-                if file_content.name in ["requirements.txt","requirements.in"]:  # these are the files we are looking for (this should be pulled up from database)
+                if file_content.name in ["requirements.txt","requirements.in","Pipfile.lock"]:  # these are the files we are looking for (this should be pulled up from database)
                     dependency_files.append(file_content)  # END of loop to search through all repo contents for dependency files
     return(dependency_files)
 
@@ -247,18 +247,43 @@ def get_dependency_files_from_repo(repository, language):
 # returns dict of dependencies
 def get_dependencies_from_dep_files(repository, dependency_files, language):
     if language == 'python':
-        strings_to_replace = ['>=','>','<=','<']  # strings in requirements files to compare versions. All these need to be replaced below with '==' to split successfully
         dependency_list = []
         for dep in dependency_files:
-            dep_contents = repository.get_contents(dep.path)
-            requirements_string = dep_contents.decoded_content.decode().splitlines()
-            for line in requirements_string:
-                for string in strings_to_replace:
-                    line = line.replace(string, '==')
-                content_line = line.split(sep='==', maxsplit=1)[0].strip()
-                if not content_line.startswith('#') and len(content_line)>1:
-                    dependency_list.append(content_line)
-    return(dependency_list)
+            if dep.path == "Pipfile.lock":
+                pipline = []
+                dep_contents = repository.get_contents(dep.path)
+                requirements_string = dep_contents.decoded_content.decode().splitlines()
+                for line in requirements_string:
+                    if line.endswith(": {"):
+                        content_line = line.split(sep='"', maxsplit=2)[1].strip()
+                        pipline.append(content_line)
+                        default = "default"
+                        develop = "develop"
+                        meta = "_meta"
+                        hash = "hash"
+                        for p in pipline:
+                            if not str(p) == default and not str(p) ==  develop and not str(p) ==  meta and not str(p) ==  hash:
+                                dependency_list.append(p)
+            if dep.path == "requirements.txt" or dep.path == "requirements.in":
+                strings_to_replace = ['>=','>','<=','<','~=']
+                dep_contents = repository.get_contents(dep.path) 
+                requirements_string = dep_contents.decoded_content.decode().splitlines()
+                for line in requirements_string:
+                    for string in strings_to_replace:
+                        line = line.replace(string, '==')
+                    content_line = line.split(sep='==', maxsplit=1)[0].strip()
+                    if not content_line.startswith('#') and len(content_line)>1:
+                        dependency_list.append(content_line)
+    return(dependency_list) 
+            # dep_contents = repository.get_contents(dep.path)
+            # requirements_string = dep_contents.decoded_content.decode().splitlines()
+            # for line in requirements_string:
+            #     for string in strings_to_replace:
+            #         line = line.replace(string, '==')
+            #     content_line = line.split(sep='==', maxsplit=1)[0].strip()
+            #     if not content_line.startswith('#') and len(content_line)>1:
+            #         dependency_list.append(content_line)
+    # return(dependency_list)
 
 
 # spec: receives a repository, dict of dependencies and a language as a string, invokes lookup on the license and stores the pair for repo/dependency
