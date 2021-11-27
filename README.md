@@ -39,8 +39,17 @@ It will run the docker image and drop you in the command line of zappa. To check
 **Important prerequisites for the docker image to run properly**
 1. The path in the Dockerfile on the line `WORKDIR /var/codeonion/codeonion-core` must be equal to the path in `zappashell.zh` in this section `"$(pwd):/var/codeonion/codeonion-core"`. Otherwise the docker won't be able to see your local folder with code to deploy it. 
 2. The AWS profile in your ~/.aws/credentials must be named exactly as it's referenced in `zappashell.sh` in  the section `-e AWS_PROFILE=zappa `. Otherwise zappa won't be able to authenticate to AWS even if you have created a proper user. 
- 
 
 
 ## Similar product
 https://requires.io 
+
+# New text for the team to add one thing
+
+## Jasmin
+
+## Dragana
+
+## Marko
+
+## Marjan
