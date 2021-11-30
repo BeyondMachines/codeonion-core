@@ -1,13 +1,19 @@
-<h2>Repo Checker</h2>
+ 
+
+<h2 class="mt-5">CodeOnion's Licenses Hunter</h2>
 <p> {{scope_message}}</p>
 <p> {{url_instructons_message}}</p>
 
 <form method="POST" action="">
     {% csrf_token %}
-    <input type="text" name="repository" class="form-control" placeholder="repo to scan">
+    <div class="input-group mb-3 ">
+        <input type="text" name="repository" class="form-control" placeholder="https://github.com/user/repo"  aria-describedby="button-addon2">
+        <button class="btn btn-outline-secondary text-white" type="submit" id="button-addon2">Scan!</button>
+      </div>
+    <!-- <input type="text" name="repository" class="form-control" placeholder="repo to scan">
     <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
         Scan!
-     </button>
+     </button> -->
 </form>
 
 
@@ -65,7 +71,7 @@
         // console.log(a.status)
         if (scan_status == 'true') {
             var count = Object.keys(a.results).length;
-            var tableHeader = "<table class=\"table table-borderless table-hover\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
+            var tableHeader = "<table class=\"table table-borderless  text-white text-start\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
             var tableContent = "";
             var tableFooter = "</tbody></table>";
 

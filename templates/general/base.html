@@ -10,42 +10,45 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" media="none" onload="if(media!='all')media='all'">
   <link rel="stylesheet" href="{% static 'css/all.min.css' %}" media="none" onload="if(media!='all')media='all'">
   -->
-  <link rel="icon" href="{% static 'img/icon.png' %}" sizes="32x32" />
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   
-  <!--
-  <link rel="shortcut icon" type="image/png" href="{% static 'images/icon/favicon.ico' %}"/>
+ 
+  <link rel="shortcut icon" type="image/png" href="{% static 'img/icon.png' %}"/>
+   <!--
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
   <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
   <link  rel="stylesheet" href="{% static 'css/beyondmachines_css.css' %}">
-
+  
   -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+
 </head>
 
-<body>
+<body class="d-flex text-center h-100 text-white bg-dark">
   <!-- Bootstrap JavaScript -->
 
-  <div class="container-fluid container-lg">
-    <div class="row newtextverydark">
-      <div class="col-12">
+  
 
-      </div>
-    </div>
-</div>
 
-<div class="container-fluid container-lg">
+      
+
+<div class="container-fluid ">
 
   <div class="row justify-content-center">
-    <div class="col-12 col-sm">
+    <div class="col-7 col-sm">
+      {% block navbar %}
+      {% endblock %}
       {% block main %}
+      {% endblock %}
+      {% block about %}
+      {% endblock %}
+      {% block footer %}
       {% endblock %}
     </div>
   </div>
 </div>
 
-{% block footer %}
-{% endblock %}
+
 
 </body>
 </html>
