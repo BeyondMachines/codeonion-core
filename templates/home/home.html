@@ -1,12 +1,22 @@
 {% extends 'general/base.html' %}
 
+{% block navbar %}
+  {% include 'home/components/navbar.html' %}
+     
+{% endblock %}
 
 
 {% block main %}
+
       {% include 'home/components/home_main.html' %}
+{% endblock %}
+
+{% block about %}
+  {% include 'home/components/about.html' %}
+     
 {% endblock %}
 
 
 {% block footer %}
-  {% include 'general/footer.html' %}
+  {% include 'home/components/footer.html' %}
 {% endblock %}
