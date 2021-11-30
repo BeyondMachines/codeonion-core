@@ -55,9 +55,11 @@ USE_POSTGRES = os.getenv('USE_POSTGRES', False)  # this should be removed later
 if os.environ.get('AWS_REGION'): # Check whether AWS_REGION variable exists to see if running in AWS or locally
     LOCAL_TEST = False
     DEBUG = os.environ.get('DJANGO_DEBUG', False)
+    USE_S3 = True
 else:
     LOCAL_TEST = True
     DEBUG = os.getenv('DJANGO_DEBUG', True)
+    USE_S3 = False
     
 
 #  LOCAL_CONFIG = os.getenv('LOCAL_CONFIG', True)  # this should be removed for pulling info from AWS Parameter Store
@@ -211,7 +213,44 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+# STATIC_URL = '/static/'
+
+
+if str(LOCAL_TEST) == 'True':
+    STATIC_FILE_PATH = BASE_DIR
+    STATIC_ROOT = os.path.join(STATIC_FILE_PATH, 'static_assets/')
+    STATIC_URL = '/static/'
+else:  # important, the below code is not finished yet!
+    if str(USE_S3) == 'True':
+        # aws settings
+        AWS_STORAGE_BUCKET_NAME = get_ssm_key('CODEFOX_S3_AWS_STORAGE_BUCKET_NAME')  # get the key for API access to S3
+        AWS_DEFAULT_ACL = 'public-read'
+        # AWS_S3_ENDPOINT_URL = 'https://ams3.digitaloceanspaces.com'
+        AWS_S3_CUSTOM_ROOT = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+        AWS_S3_CUSTOM_DOMAIN = 'pubcdn.codeonion.net'  # to allow for cdn use
+        AWS_S3_OBJECT_PARAMETERS = {
+            'CacheControl': 'max-age=86400'
+        }
+        AWS_IS_GZIPPED = True
+
+        # s3 static settings
+        AWS_STATIC_LOCATION = '' 
+        # STATIC_URL = 'https://%s/%s/' % (AWS_S3_ENDPOINT_URL, AWS_STATIC_LOCATION)
+        # STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'  # setting before the CDN - keeping this as backup to use for static root
+        # STATIC_ROOT = STATIC_URL  # setting before the CDN - keeping this as backup
+        STATIC_ROOT = f'https://{AWS_S3_CUSTOM_ROOT}/{AWS_STATIC_LOCATION}/'
+        STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
+        STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+
+    else:  # this is a special case for cloud version where we need local file serving. Should not be used. 
+        STATIC_FILE_PATH = os.getenv('DJANGO_STATIC_PATH')
+        STATIC_ROOT = os.path.join(STATIC_FILE_PATH, 'static_assets/')
+        STATIC_URL = '/static/'
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static_data/')
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

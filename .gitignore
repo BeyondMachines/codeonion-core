@@ -6,6 +6,9 @@ Application_Setup.md
 secret_key.txt
 github_key.txt
 
+#ignoring materials collected via static_assets
+static_assets
+
 #postgress stuff
 postgres_env.json
 
