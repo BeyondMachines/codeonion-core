@@ -94,6 +94,7 @@ INSTALLED_APPS = [
 
     # third party tools
     'rest_framework',
+    'storages'  # needed for the django s3 static files
 
 ]
 
@@ -223,11 +224,12 @@ if str(LOCAL_TEST) == 'True':
 else:  # important, the below code is not finished yet!
     if str(USE_S3) == 'True':
         # aws settings
-        AWS_STORAGE_BUCKET_NAME = get_ssm_key('CODEFOX_S3_AWS_STORAGE_BUCKET_NAME')  # get the key for API access to S3
+        # AWS_STORAGE_BUCKET_NAME = get_ssm_key('CODEFOX_S3_AWS_STORAGE_BUCKET_NAME')  # get the key for API access to S3
+        AWS_STORAGE_BUCKET_NAME = 'codeonion-static-test.s3.us-east-2.amazonaws.com'  # get the key for API access to S3
         AWS_DEFAULT_ACL = 'public-read'
         # AWS_S3_ENDPOINT_URL = 'https://ams3.digitaloceanspaces.com'
-        AWS_S3_CUSTOM_ROOT = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
-        AWS_S3_CUSTOM_DOMAIN = 'pubcdn.codeonion.net'  # to allow for cdn use
+        AWS_S3_CUSTOM_ROOT = f'{AWS_STORAGE_BUCKET_NAME}'
+        AWS_S3_CUSTOM_DOMAIN = 'pubcdn-test.codeonion.net'  # to allow for cdn use
         AWS_S3_OBJECT_PARAMETERS = {
             'CacheControl': 'max-age=86400'
         }
@@ -241,7 +243,6 @@ else:  # important, the below code is not finished yet!
         STATIC_ROOT = f'https://{AWS_S3_CUSTOM_ROOT}/{AWS_STATIC_LOCATION}/'
         STATIC_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{AWS_STATIC_LOCATION}/'
         STATICFILES_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
-
 
     else:  # this is a special case for cloud version where we need local file serving. Should not be used. 
         STATIC_FILE_PATH = os.getenv('DJANGO_STATIC_PATH')
