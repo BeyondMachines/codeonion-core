@@ -45,25 +45,32 @@ def home_view(request, *args, **kwargs):
     repo_scan_completed = False
     repo_scan_started = False
     scan_response_id = None
-
     repo_connection = None
     repo_uuid = None
+    repo_name = None
+    validRepo = False
 
     # generate_uuid() # this is commented, should be used only once to generate the initial uuids in the migrations process for the testing.
 
     if request.method == 'POST':
         # web_site = 'https://'+str(request.POST.get('website'))  # this was the first prototype for zappa async. Keeping it here for reference
         request_url = request.POST.get('repository')
+        
+        repo_name = request_url.split(sep='/')[-1].strip()
+
         # async_call_id = open_site(web_site) # this was the first prototype for zappa async. Keeping it here for reference
         valid_repo, repo_type, repo_path = check_valid_repo_url(request_url)
         # print('check_valid_repo_url', valid_repo, repo_type, repo_path)
         if valid_repo:
+            validRepo = True
             try:
                 repo_connection = open_github_repo(repo_path)
+                
             except Exception as error:
                 # print('open_github_repo', error)
                 url_instructons_message = error
             if repo_connection:
+                
                 repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
                 # print('check_repo_in_db', repo_in_db, repo_exists, older)
                 if repo_exists and not older:
@@ -104,7 +111,7 @@ def home_view(request, *args, **kwargs):
 
         else:
             url_instructons_message = 'You didn\'t enter a GitHub URL. The URL you entered is: ' + request_url
-
+            validRepo = False
         
         # START this was the first prototype for zappa async. Keeping it here for reference
         # try:
@@ -115,6 +122,8 @@ def home_view(request, *args, **kwargs):
 
 
     context = {
+        'validRepo' : validRepo,
+        'repo_name':repo_name,
         'url_instructons_message': url_instructons_message,
         'scope_message': scope_message,
         'repo_scan_completed': repo_scan_completed,

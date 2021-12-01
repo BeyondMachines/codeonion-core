@@ -1,33 +1,62 @@
- 
+{% load static %}
+
 
 <h2 class="mt-5">CodeOnion's Licenses Hunter</h2>
+{% if not validRepo  %}
 <p> {{scope_message}}</p>
 <p> {{url_instructons_message}}</p>
-
+{% endif %}
+{% if not repo_name  %}
+<div id="form-head"  class="">
 <form method="POST" action="">
     {% csrf_token %}
-    <div class="input-group mb-3 ">
-        <input type="text" name="repository" class="form-control" placeholder="https://github.com/user/repo"  aria-describedby="button-addon2">
-        <button class="btn btn-outline-secondary text-white" type="submit" id="button-addon2">Scan!</button>
+    <div class="input-group mb-3">
+        <input id="input" type="text" name="repository" class="form-control" placeholder="https://github.com/user/repo"  aria-describedby="button-addon2">
+        <button disabled class="btn btn-outline-secondary text-white" type="submit" id="button-addon2">Scan!</button>
       </div>
+
     <!-- <input type="text" name="repository" class="form-control" placeholder="repo to scan">
     <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
         Scan!
      </button> -->
 </form>
 
+</div>
+{% endif %}
+{% if validRepo  %}
+
+<h3 class="mt-5">Showing results for {{repo_name}}</h3>
+
+{% endif %}
+
+
+<div id="spinner" class="visually-hidden">
+    
+    <h3>Please hold on we are going through the files...</h3>
+<div class="spinner-grow" role="status">
+
+  </div>
+  
+</div>
+
 
 <div id="response_table">
 </div>
 
 <div id="scan_status">
-    {% if repo_scan_started %}
-        Starting Repo Scan
-    {% endif %}
+   
 </div>
+
+{% if repo_name  %}
+
+<a class="btn custom-button btn-outline-warning text-center mt-5" href="/">New Scan</a>
+{% endif %}
 
 <script type="text/javascript">
     // let's set up some variables
+    
+    let repo_name = "{{repo_name}}"
+    console.log(repo_name)
     let repo_id = "{{repo_uuid}}"; // the object that we'll be looking for in the APIs
     let repo_scan_started = "{{repo_scan_started}}";  // If the scan is started, go to long polling api to check when completed. 
     let repo_scan_completed = "{{repo_scan_completed}}";  // If the scan is completed, go to collecting the results
@@ -71,16 +100,21 @@
         // console.log(a.status)
         if (scan_status == 'true') {
             var count = Object.keys(a.results).length;
-            var tableHeader = "<table class=\"table table-borderless  text-white text-start\"><thead><tr><th>Dependency Name </th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
-            var tableContent = "";
-            var tableFooter = "</tbody></table>";
+            if(count > 0){
+                var tableHeader = "<table class=\"table table-borderless mt-5  text-white text-start\"><thead><tr><th>Dependency Name</th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
+                var tableContent = "";
+                var tableFooter = "</tbody></table>";
 
-            // Loop through the JSON and output each row in to a string.
-            for(i = 0; i < count; i++) {
-                tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td></tr>";
-                }
-            // return the table
-            document.getElementById("response_table").innerHTML = tableHeader + tableContent + tableFooter;
+                // Loop through the JSON and output each row in to a string.
+                for(i = 0; i < count; i++) {
+                    tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td></tr>";
+                    }
+                // return the table
+                document.getElementById("response_table").innerHTML = tableHeader + tableContent + tableFooter;
+           }else{
+            document.getElementById("response_table").innerHTML = "<p>Unfortunately your requirements file doesn't have the standard seperators and our product can't read them properly</p>"  
+
+           }
         }
         else {
             // get the error message
@@ -107,7 +141,33 @@
         run()
     //run(repo_scan_started)
     
+    let spinner = document.getElementById('spinner');
+    let form = document.getElementById('form-head');
+    let searchButton = document.getElementById('button-addon2');
+    let input = document.getElementById('input');
+    
 
+    if(input){
+    input.addEventListener("input", function(e) {
+	if(input.value.length != 0 ) {
+        searchButton.disabled = false
+      } 
+     })
+    }
+
+    if(searchButton){
+    searchButton.addEventListener('click',function(e){
+    spinner.classList.remove('visually-hidden');
+    form.classList.add('visually-hidden');
+    
+})}
+
+   
+
+
+    
+    
+    
 
     // the test code for the poll until condition is met
     // this is just a placeholder. It will eventually be a function that evaluates.
