@@ -8,9 +8,9 @@ The location of the templates are defined in the `TEMPLATES` block of the `setti
 ### TEMPLATES structure 
 The structure of the TEMPLATES/DIRS is as follows. Put all relevant files in the appropriate subfolders. 
 
-|- TEMPLATES/DIRS
-|   |- general
-|   |- home
+|- TEMPLATES/DIRS  
+|   |- general  
+|   |- home  
 |   |   |- components
 
 ### Using templates
@@ -33,10 +33,11 @@ For our implementation the local version of STATIC_ROOT is `static_assets` in th
 
 ### STATICFILES_DIRS structure
 The structure of the STATICFILES_DIRS is as follows. Put all relevant files in the appropriate subfolders. They will be replicated during the python manage.py collectstatic.
-|- STATICFILES_DIRS
-|   |- js
-|   |- img
-|   |- css
+
+|- STATICFILES_DIRS  
+|   |- js  
+|   |- img  
+|   |- css  
 
 ### Using static files
 Add all static files during development into the STATICFILES_DIRS folder. That folder IS part of the code and must be included in the repo. 
@@ -47,3 +48,58 @@ Please note that `collectstatic` will only collect and populate folders which ar
 While there are automated mechanisms for pushing the staticfiles to an S3 bucket, for small implementations and for rare changes of the static files you can upload manually. 
 This is done to reduce costs, since S3 charges for uploads when they are frequent.
 Just upload the STATIC_ROOT content to the root of the S3 bucket, and subsequently upload changed pieces one by one. 
+
+
+## S3 Static files setup
+
+### Create an S3 Bucket
+For the test environment we have set up a bucket `codeonion-static-test` with the following setup
+```
+Block all public access
+Bucket Versioning - Disable
+Server-side encryption: Disabled
+(Advanced) Object Lock: Disable
+```
+
+Add CORS policy to allow for public access
+```
+[
+    {
+        "AllowedHeaders": [],
+        "AllowedMethods": [
+            "GET"
+        ],
+        "AllowedOrigins": [
+            "*"
+        ],
+        "ExposeHeaders": []
+    }
+]
+```
+
+### Create a cloudfront distribution
+Create a new cloudfront distribution with the following setup
+```
+Origin domain: codeonion-static-test.s3.us-east-2.amazonaws.com
+Name: codeonion-static-test.s3.us-east-2.amazonaws.com
+S3 bucket access: Yes use OAI (bucket can restrict access to only CloudFront
+Origin access identity: 
+Bucket policy: Yes, update the bucket policy
+Enable Origin Shield: No
+Distribution url: d1zr246difihfv.cloudfront.net
+Distribution cname: pubcdn-test.codeonion.net
+Compress by default
+Viewer protocol policy: Redirect http to https
+Allowed HTTP methods: GET, HEAD
+Restrict viewer access: No
+Cache policy and origin request policy: CachingOptimized
+```
+Create a cname record in the Route53 for pubcdn-test.codeonion.net to point to d1zr246difihfv.cloudfront.net
+
+### Install django-storages
+`pip install django-storages` to install django storages. 
+Add the `'storages'` line to the `settings.py` file under `INSTALLED_APPS`
+Add the configuration for the AWS parameters - docs here: https://django-storages.readthedocs.io/en/latest/backends/amazon-S3.html
+
+### Copy files to the S3 bucket 
+Copy the content of the local STATIC_ROOT folder to the S3 bucket and check if they are visible via the URL of the CDN.
