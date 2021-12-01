@@ -171,7 +171,7 @@ def scan_github_repo(repo_name):
     else:
         print("no dependency files")
         dep_in_db = False
-        dep_in_db_error_message = "Python repo" + repository.full_name + " doesn't have requirements.txt, requirements.in or Pipfile.lock"
+        dep_in_db_error_message = "Python repo " + repository.full_name + " doesn't have requirements.txt, requirements.in or Pipfile.lock"
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error=True)
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error_message=dep_in_db_error_message)
