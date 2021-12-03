@@ -49,6 +49,7 @@ def home_view(request, *args, **kwargs):
     repo_uuid = None
     repo_name = None
     validRepo = False
+    request_url = None
 
     # generate_uuid() # this is commented, should be used only once to generate the initial uuids in the migrations process for the testing.
 
@@ -122,6 +123,7 @@ def home_view(request, *args, **kwargs):
 
 
     context = {
+        'url': request_url,
         'validRepo' : validRepo,
         'repo_name':repo_name,
         'url_instructons_message': url_instructons_message,
