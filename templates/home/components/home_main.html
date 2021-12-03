@@ -28,7 +28,7 @@
 
 
 <a id="new_scan_btn" class="btn custom-button btn-outline-warning text-center mt-5 visually-hidden" href="/">New Scan</a>
-<h3 class="mt-5">Showing results for <span><a class="text-decoration-none" href="{{url}}">{{repo_name}}</a></span> repository </h3>
+<h3 id="header3" class="mt-5">Showing results for <span><a class="text-decoration-none" target="_blank" href="{{url}}">{{repo_name}}</a></span> repository </h3>
 <!-- <h3 class="mt-5">Showing results for <span><a class="text-decoration-none" href="{{url}}">{{url}}</a></span>  </h3> -->
 
 <p id="total"></p>
@@ -39,12 +39,13 @@
 <div id="spinner" class="visually-hidden">
     
     <h4 class="mb-2">Please hold on we are going through the files...</h4>
+    <div class="" id="timer"></div>
     <div class="loader">
         <div class="inner one"></div>
         <div class="inner two"></div>
         <div class="inner three"></div>
       </div>
-  
+      
 </div>
 
 <button class="visually-hidden btn btn-outline-danger btn-sm" id="pdf">Download PDF</button>
@@ -171,14 +172,17 @@
     searchButton.addEventListener('click',function(e){
     spinner.classList.remove('visually-hidden');
     form.classList.add('visually-hidden');
-    
+    totalSeconds = 0;
+    countTimer()
      })
    }
    // generate pdf
    let pdfButton = document.getElementById("pdf");
    if(pdfButton){
     pdfButton.onclick= function(){
+       
        let results = document.getElementById("response_table");
+
        document.getElementById("table").classList.add('bg-dark');
 
        let opt = {
@@ -191,6 +195,23 @@
        html2pdf(results, opt)
       }
    }
+
+
+   var timerVar = setInterval(countTimer, 1000);
+   var totalSeconds = 0;
+   function countTimer() {
+           ++totalSeconds;
+           var hour = Math.floor(totalSeconds /3600);
+           var minute = Math.floor((totalSeconds - hour*3600)/60);
+           var seconds = totalSeconds - (hour*3600 + minute*60);
+           if(hour < 10)
+             hour = "0"+hour;
+           if(minute < 10)
+             minute = "0"+minute;
+           if(seconds < 10)
+             seconds = "0"+seconds;
+           document.getElementById("timer").innerHTML ='Scanning the repo for '+  minute + ":" + seconds + ' seconds';
+        }
 
 // the test code for the poll until condition is met
     // this is just a placeholder. It will eventually be a function that evaluates.
