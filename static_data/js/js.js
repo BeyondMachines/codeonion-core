@@ -23,7 +23,7 @@ let spinner = document.getElementById('spinner');
     if(input){
       input.addEventListener("input", buttonFunc);
       function buttonFunc(e) {
-     if(input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g) && input.value.includes('github.com') && input.value.length != 0 ) {
+     if(input.value.match(/(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+~#?&/=]*)/g) && input.value.includes('github.com') && input.value.length != 0 ) {
         searchButton.disabled = false
       } else{
         searchButton.disabled = true
@@ -69,8 +69,7 @@ let spinner = document.getElementById('spinner');
            var hour = Math.floor(totalSeconds /3600);
            var minute = Math.floor((totalSeconds - hour*3600)/60);
            var seconds = totalSeconds - (hour*3600 + minute*60);
-           if(hour < 10)
-             hour = "0"+hour;
+           
            if(minute < 10)
              minute = "0"+minute;
            if(seconds < 10)
