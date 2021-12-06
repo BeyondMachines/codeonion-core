@@ -15,8 +15,8 @@
         <button disabled class="btn btn-outline-secondary text-white" type="submit" id="button-addon2">Scan!</button>
       </div>
 
-    <!-- <input type="text" name="repository" class="form-control" placeholder="repo to scan">
-    <button type="submit" class="btn btn-outline-info" aria-label="Left Align">
+    <!-- <input id="input" type="text" name="repository"  class="form-control"aria-describedby="button-addon2" placeholder="repo to scan">
+    <button disabled type="submit"  class="btn btn-outline-secondary text-white mt-2 " id="button-addon2" aria-label="Left Align">
         Scan!
      </button> -->
 </form>
@@ -29,13 +29,11 @@
 
 <a id="new_scan_btn" class="btn custom-button btn-outline-warning text-center mt-5 visually-hidden" href="/">New Scan</a>
 <h3 id="header3" class="mt-5">Showing results for <span><a class="text-decoration-none" target="_blank" href="{{url}}">{{repo_name}}</a></span> repository </h3>
-<!-- <h3 class="mt-5">Showing results for <span><a class="text-decoration-none" href="{{url}}">{{url}}</a></span>  </h3> -->
+ <h3 class="mt-5">Showing results for <span><a class="text-decoration-none" href="{{url}}">{{url}}</a></span>  </h3> 
 
 <p id="total"></p>
 
 {% endif %}
-
-
 <div id="spinner" class="visually-hidden">
     
     <h4 class="mb-2">Please hold on we are going through the files...</h4>
@@ -45,9 +43,7 @@
         <div class="inner two"></div>
         <div class="inner three"></div>
       </div>
-      
-</div>
-
+    </div>
 <button class="visually-hidden btn btn-outline-danger btn-sm" id="pdf">Download PDF</button>
 <div id="response_table">
     
@@ -114,13 +110,13 @@
                 document.getElementById('new_scan_btn').classList.remove('visually-hidden')
                 document.getElementById('pdf').classList.remove('visually-hidden')
 
-                var tableHeader = "<table id=\"table\" class=\"table table-borderless mt-5 text-white text-start\"><thead><tr><th>Dependency Name</th><th>Dependency Language</th><th>Dependency License</th></tr></thead><tbody>"
+                var tableHeader = "<table id=\"table\" class=\"table table-borderless mt-5 text-white text-start\"><thead><tr><th>Dependency Name</th><th>Dependency Language</th><th>Dependency License</th><th>Last Scanned Date</th></tr></thead><tbody>"
                 var tableContent = "";
                 var tableFooter = "</tbody></table>";
 
                 // Loop through the JSON and output each row in to a string.
                 for(i = 0; i < count; i++) {
-                    tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td></tr>";
+                    tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td><td>" + a.results[i].dependency_license_last_checked_date + "</td></tr>";
                     }
                 // return the table
                 document.getElementById("response_table").innerHTML = tableHeader + tableContent + tableFooter;
@@ -154,67 +150,15 @@
         run()
     //run(repo_scan_started)
     
-    let spinner = document.getElementById('spinner');
-    let form = document.getElementById('form-head');
-    let searchButton = document.getElementById('button-addon2');
-    let input = document.getElementById('input');
     
-    //disable button if its empty
-    if(input){
-    input.addEventListener("input", function(e) {
-	if(input.value.length != 0 ) {
-        searchButton.disabled = false
-      } 
-     })
-    }
-    // onclick hide the form and show spinner
-    if(searchButton){
-    searchButton.addEventListener('click',function(e){
-    spinner.classList.remove('visually-hidden');
-    form.classList.add('visually-hidden');
-    totalSeconds = 0;
-    countTimer()
-     })
-   }
-   // generate pdf
-   let pdfButton = document.getElementById("pdf");
-   if(pdfButton){
-    pdfButton.onclick= function(){
+
        
-       let results = document.getElementById("response_table");
 
-       document.getElementById("table").classList.add('bg-dark');
-
-       let opt = {
-         margin: 1,
-         filename: `${repo_name}_dependencies.pdf`,
-         image: { type: 'jpeg', quality: 0.98 },
-         html2canvas: { scale: 2 },
-         jsPDF:  { unit: 'in', format:'letter', orientation: 'portrait'}
-       };
-       html2pdf(results, opt)
-      }
-   }
-
-
-   var timerVar = setInterval(countTimer, 1000);
-   var totalSeconds = 0;
-   function countTimer() {
-           ++totalSeconds;
-           var hour = Math.floor(totalSeconds /3600);
-           var minute = Math.floor((totalSeconds - hour*3600)/60);
-           var seconds = totalSeconds - (hour*3600 + minute*60);
-           if(hour < 10)
-             hour = "0"+hour;
-           if(minute < 10)
-             minute = "0"+minute;
-           if(seconds < 10)
-             seconds = "0"+seconds;
-           document.getElementById("timer").innerHTML ='Scanning the repo for '+  minute + ":" + seconds + ' seconds';
-        }
+        
+    
 
 // the test code for the poll until condition is met
     // this is just a placeholder. It will eventually be a function that evaluates.
-
+   
 
 </script>
