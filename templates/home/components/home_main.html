@@ -70,10 +70,12 @@
     if (root_url.slice(-1)==='/'){
         scan_api_url = window.location.href + `scan_status/${scan_id}`
         result_api_url = window.location.href + `repo_dependencies/${repo_id}`
+        status_api_url = window.location.href + `repo_scan_status/${repo_id}`
     }
     else {
         scan_api_url = window.location.href + `/scan_status/${scan_id}`
         result_api_url = window.location.href + `/repo_dependencies/${repo_id}`
+        status_api_url = window.location.href + `/repo_scan_status/${repo_id}`
     }
     // console.log(root_url)
     // console.log(scan_api_url)

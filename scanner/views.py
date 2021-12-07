@@ -158,10 +158,12 @@ def scan_github_repo(repo_name):
     repository = open_github_repo(repo_name)
     older_than_90_days = datetime.datetime.now() - datetime.timedelta(90)
     repo_in_db, repo_exists, older = check_repo_in_db(repository)
+    Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='none').update(repo_scan_status='started')
     print('fetching dependency files')
     dependency_files = get_dependency_files_from_repo(repository, 'python')
     if dependency_files: 
         print("looping through dependency files")
+        Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='started').update(repo_scan_status='completed')
         dependency_dict = get_dependencies_from_dep_files(repository, dependency_files, 'python')
         scan_status = scan_repo_dependencies(repo_in_db, dependency_dict, 'python')
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
@@ -171,6 +173,7 @@ def scan_github_repo(repo_name):
     else:
         print("no dependency files")
         dep_in_db = False
+        Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='none').update(repo_scan_status='error')
         dep_in_db_error_message = "Python repo " + repository.full_name + " doesn't have requirements.txt, requirements.in or Pipfile.lock"
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error=True)

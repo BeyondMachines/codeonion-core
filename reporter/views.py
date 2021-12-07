@@ -85,3 +85,24 @@ def scan_status_view(request, repo_id):
     #     'Location': url_for('async_response', response_id=response_id, backoff=5),
     #     'X-redirect-reason': "Not yet ready.",
     #}
+@csrf_exempt
+def repo_scan_status_view(request, repo_id):
+    if request.method == 'GET':
+        
+            repo_in_db = Scanned_Repo.objects.get(repo_id=repo_id)
+            
+            if repo_in_db.repo_scan_status == 'none':
+                return JsonResponse({ 'message': 'Searching for files'}, safe=False)
+                
+            elif repo_in_db.repo_scan_status == 'started':
+                return JsonResponse({ 'message': 'Files found , started scanning'}, safe=False) 
+
+            elif repo_in_db.repo_scan_status == 'comleted':
+                return JsonResponse({ 'message': 'Scan completed'}, safe=False)        
+        
+            else:
+                return JsonResponse({ 'status': repo_in_db.repo_scan_status}, safe=False)
+
+    else:
+        message = {"error": "Bad Request"}
+        return JsonResponse(message, status=405)            

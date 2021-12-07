@@ -16,12 +16,13 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from main.views import home_view
-from reporter.views import scan_status_view, repo_dependencies_view
+from reporter.views import scan_status_view, repo_dependencies_view, repo_scan_status_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', home_view, name='home'),
     # path('scan/', scan_home_view, name='scan_home'),
     path('scan_status/<repo_id>', scan_status_view, name='scan_status'),
-    path('repo_dependencies/<uuid:repo_id>', repo_dependencies_view, name='repo_dependencies')
+    path('repo_dependencies/<uuid:repo_id>', repo_dependencies_view, name='repo_dependencies'),
+    path('repo_scan_status/<uuid:repo_id>', repo_scan_status_view, name='repo_scan_status')
 ]
