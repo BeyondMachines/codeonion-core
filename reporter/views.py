@@ -97,7 +97,7 @@ def repo_scan_status_view(request, repo_id):
             elif repo_in_db.repo_scan_status == 'started':
                 return JsonResponse({ 'message': 'Files found , started scanning'}, safe=False) 
 
-            elif repo_in_db.repo_scan_status == 'comleted':
+            elif repo_in_db.repo_scan_status == 'completed':
                 return JsonResponse({ 'message': 'Scan completed'}, safe=False)        
         
             else:
