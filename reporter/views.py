@@ -101,7 +101,7 @@ def repo_scan_status_view(request, repo_id):
                 return JsonResponse({ 'message': 'Scan completed'}, safe=False)        
         
             else:
-                return JsonResponse({ 'status': repo_in_db.repo_scan_status}, safe=False)
+                return JsonResponse({ 'message': 'error happened'}, safe=False)
 
     else:
         message = {"error": "Bad Request"}
