@@ -1,0 +1,32 @@
+
+.cookie-consent {
+    position: fixed;
+    bottom: 8px;
+    left: 20px;
+    width: 300px;
+    padding-top: 7px;
+    height: 100px;
+    color: #292929;
+    line-height: 20px;
+    padding-left: 10px;
+    padding-right: 10px;
+    font-size: 14px;
+    background: #fff;
+    z-index: 120;
+    cursor: pointer;
+    border-radius: 8px
+}
+
+.cookie-button {
+    height: 25px;
+    width: 100px;
+    color: #fff;
+    font-size: 12px;
+    line-height: 10px;
+    border-radius: 8px;
+    border: 1px solid green;
+    background-color: green;
+}
+.cookie-button:hover{
+    background-color: rgb(2, 31, 2);
+}

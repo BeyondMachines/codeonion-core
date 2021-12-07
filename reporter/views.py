@@ -27,7 +27,7 @@ def repo_dependencies_view(request, repo_id):
             repo_in_db = Scanned_Repo.objects.get(repo_id=repo_id)
             if repo_in_db.repo_last_checked_date > older_than_90_days.date():
                 if repo_in_db and not repo_in_db.repo_scan_error:
-                    dep_in_db = Dependency.objects.filter(dependency__repo=repo_in_db).values('dependency_name', 'dependency_language', 'dependency_license')
+                    dep_in_db = Dependency.objects.filter(dependency__repo=repo_in_db).values('dependency_name', 'dependency_language', 'dependency_license','dependency_license_last_checked_date')
                     serializer = Dependency_Serializer(dep_in_db, many=True)
                     return JsonResponse({ 'status': 'true', 'results': serializer.data}, safe=False)
                 else:

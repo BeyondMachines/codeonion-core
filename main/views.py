@@ -9,6 +9,7 @@ from time import sleep
 import json
 import boto3
 import os
+import botocore
 
 # Import models
 
