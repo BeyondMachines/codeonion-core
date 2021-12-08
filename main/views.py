@@ -62,14 +62,12 @@ def home_view(request, *args, **kwargs):
 
         # async_call_id = open_site(web_site) # this was the first prototype for zappa async. Keeping it here for reference
         valid_repo, repo_type, repo_path = check_valid_repo_url(request_url)
-        # print('check_valid_repo_url', valid_repo, repo_type, repo_path)
         if valid_repo:
             validRepo = True
             try:
                 repo_connection = open_github_repo(repo_path)
                 
             except Exception as error:
-                # print('open_github_repo', error)
                 url_instructons_message = error
             if repo_connection:
                 
@@ -110,7 +108,6 @@ def home_view(request, *args, **kwargs):
                         # repo_scan_completed = True
                         repo_scan_completed = False
 
-
         else:
             url_instructons_message = 'You didn\'t enter a GitHub URL. The URL you entered is: ' + request_url
             validRepo = False
@@ -121,7 +118,6 @@ def home_view(request, *args, **kwargs):
         # except:
         #     response_id = async_call_id
         # END this was the first prototype for zappa async. Keeping it here for reference
-
 
     context = {
         'url': request_url,

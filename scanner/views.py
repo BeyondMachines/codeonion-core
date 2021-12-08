@@ -158,26 +158,28 @@ def scan_github_repo(repo_name):
     repository = open_github_repo(repo_name)
     older_than_90_days = datetime.datetime.now() - datetime.timedelta(90)
     repo_in_db, repo_exists, older = check_repo_in_db(repository)
-    Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='none').update(repo_scan_status='started')
+    Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_status='started')
     print('fetching dependency files')
     dependency_files = get_dependency_files_from_repo(repository, 'python')
     if dependency_files: 
         print("looping through dependency files")
-        Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='started').update(repo_scan_status='completed')
         dependency_dict = get_dependencies_from_dep_files(repository, dependency_files, 'python')
+        print(dependency_dict)
         scan_status = scan_repo_dependencies(repo_in_db, dependency_dict, 'python')
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         # dep_in_db = Repo_Dependency_Pair.objects.filter(repo = repo_in_db)
+        Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_status='completed')
         dep_uuid = Scanned_Repo.objects.get(repo_name=repository,repo_store='github').repo_id
         return(dep_uuid)
     else:
         print("no dependency files")
         dep_in_db = False
-        Scanned_Repo.objects.filter(repo_name=repository,repo_scan_status='none').update(repo_scan_status='error')
+        Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_status='error')
         dep_in_db_error_message = "Python repo " + repository.full_name + " doesn't have requirements.txt, requirements.in or Pipfile.lock"
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error=True)
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_error_message=dep_in_db_error_message)
+        Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_scan_status='error')
         dep_uuid = Scanned_Repo.objects.get(repo_name=repository,repo_store='github').repo_id
         return(dep_uuid)
 
@@ -252,7 +254,7 @@ def get_dependencies_from_dep_files(repository, dependency_files, language):
     if language == 'python':
         dependency_list = []
         for dep in dependency_files:
-            if dep.path == "Pipfile.lock":
+            if "Pipfile.lock" in dep.path:
                 pipline = []
                 dep_contents = repository.get_contents(dep.path)
                 requirements_string = dep_contents.decoded_content.decode().splitlines()
@@ -267,7 +269,7 @@ def get_dependencies_from_dep_files(repository, dependency_files, language):
                         for p in pipline:
                             if not str(p) == default and not str(p) ==  develop and not str(p) ==  meta and not str(p) ==  hash:
                                 dependency_list.append(p)
-            if dep.path == "requirements.txt" or dep.path == "requirements.in":
+            if "requirements.txt" in dep.path or "requirements.in" in dep.path:
                 strings_to_replace = ['>=','>','<=','<','~=']
                 dep_contents = repository.get_contents(dep.path) 
                 requirements_string = dep_contents.decoded_content.decode().splitlines()
