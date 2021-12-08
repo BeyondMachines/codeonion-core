@@ -35,6 +35,8 @@ class Scanned_Repo(models.Model):  # this is a generic challenge model where all
     repo_last_checked_date = models.DateField(blank=True, null=True)
     repo_scan_error = models.BooleanField(default=False)
     repo_scan_error_message = models.CharField(max_length=70, blank=True, null=True, default = "")
+    repo_scan_status = models.CharField(max_length=20, blank=True, null=True, default = "none")
+    
 
     def __str__(self):
         return self.repo_name
