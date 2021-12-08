@@ -84,17 +84,19 @@
     let continue_marker = 'not'
 
     async function subscribe(loop_counter) {
-        response = await fetch(scan_api_url)
+        response = await fetch(status_api_url)
         json = await response.json()
-        // console.log(json.status)
-        // console.log(loop_counter)
-        if ((json.status == 'complete') || (loop_counter > 30 )) 
+        console.log(json)
+        console.log(json.status)
+        console.log(loop_counter)
+        if ((json.status == 'completed') || (json.status == 'error')) {
             return json.status
+        }
         else {
             document.getElementById("scan_status").innerHTML = 'Scanning the repo for ' + loop_counter + ' seconds';
             await new Promise(resolve => setTimeout(resolve, 1000));
-            loop_counter += 1
-            await subscribe(loop_counter);
+            loop_counter += 1;
+            return await subscribe(loop_counter);
         }
     }
 
@@ -137,17 +139,16 @@
 
 
        async function run() {
-           // console.log('starting run',repo_scan_started)
+           console.log('starting run',repo_scan_started)
            if ((repo_scan_started == 'True') && (scan_id != 'None')) {
-                // console.log(repo_scan_started)
-                continue_marker = await subscribe(loop_counter)
-                // console.log(continue_marker)
-           }
+                console.log('repo_scan_started', repo_scan_started);
+                continue_marker = await subscribe(loop_counter);
+                console.log('continue_marker', continue_marker);
+            }
            if (repo_scan_started == 'True') {
-            render()
+            render();
             }
         }
-
 
         run()
     //run(repo_scan_started)
