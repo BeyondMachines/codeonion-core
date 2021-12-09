@@ -48,7 +48,6 @@ def home_view(request, *args, **kwargs):
     scan_response_id = None
     repo_connection = None
     repo_uuid = None
-    repo_name = None
     validRepo = False
     request_url = None
 
@@ -58,8 +57,6 @@ def home_view(request, *args, **kwargs):
         # web_site = 'https://'+str(request.POST.get('website'))  # this was the first prototype for zappa async. Keeping it here for reference
         request_url = request.POST.get('repository')
         
-        repo_name = request_url.split(sep='/')[-1].strip()
-
         # async_call_id = open_site(web_site) # this was the first prototype for zappa async. Keeping it here for reference
         valid_repo, repo_type, repo_path = check_valid_repo_url(request_url)
         if valid_repo:
@@ -122,7 +119,6 @@ def home_view(request, *args, **kwargs):
     context = {
         'url': request_url,
         'validRepo' : validRepo,
-        'repo_name':repo_name,
         'url_instructons_message': url_instructons_message,
         'scope_message': scope_message,
         'repo_scan_completed': repo_scan_completed,

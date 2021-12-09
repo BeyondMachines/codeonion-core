@@ -6,7 +6,7 @@
 <p> {{scope_message}}</p>
 <p> {{url_instructons_message}}</p>
 {% endif %}
-{% if not repo_name  %}
+{% if not repo_scan_completed  %}
 <div id="form-head"  class="">
 <form method="POST" action="">
     {% csrf_token %}
@@ -27,11 +27,12 @@
 {% if validRepo  %}
 
 
-<a id="new_scan_btn" class="btn custom-button btn-outline-warning text-center mt-5 visually-hidden" href="/">New Scan</a>
-<h3 id="header3" class="mt-5">Showing results for <span><a class="text-decoration-none" target="_blank" href="{{url}}">{{repo_name}}</a></span> repository </h3>
-<!-- <h3 class="mt-5">Showing results for <span><a class="text-decoration-none" href="{{url}}">{{url}}</a></span>  </h3> -->
+<a id="new_scan_btn" class="btn custom-button btn-outline-warning text-center m-5 visually-hidden" href="/">New Scan</a>
 
-<p id="total"></p>
+<p id="name" class="text-start"></p>
+<p id="link" class="text-start"></p>
+<p id="date" class="text-start"></p>
+<p id="total" class="text-start"></p>
 
 {% endif %}
 <div id="spinner" class="visually-hidden">
@@ -53,7 +54,7 @@
    
 </div>
 
-{% if repo_name  %}
+{% if repo_scan_completed  %}
 <a class="btn custom-button btn-outline-warning text-center mt-5" href="/">New Scan</a>
 {% endif %}
 
@@ -93,7 +94,6 @@
             return json.status
         }
         else {
-            document.getElementById("scan_status").innerHTML = 'Scanning the repo for ' + loop_counter + ' seconds';
             await new Promise(resolve => setTimeout(resolve, 1000));
             loop_counter += 1;
             return await subscribe(loop_counter);
@@ -104,11 +104,16 @@
         // console.log('starting_render')
         response = await fetch(result_api_url)
         a = await response.json()
+        
         // console.log(a)
         let scan_status = a.status;
-        // console.log(a.status)
+        console.log(a)
         if (scan_status == 'true') {
+            document.getElementById("date").innerHTML ='Last scanned date: ' + a.date
+            document.getElementById("name").innerHTML ='Repository name: ' + a.name
+            document.getElementById("link").innerHTML = `Repository url: <span><a  class="text-decoration-none" target="_blank" href="${a.link}">${a.link}</a></span>`
             var count = Object.keys(a.results).length;
+           
             document.getElementById("total").innerHTML = `Found total dependencies: ${count}`
             if(count > 0){
                 document.getElementById('new_scan_btn').classList.remove('visually-hidden')
