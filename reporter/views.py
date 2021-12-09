@@ -27,9 +27,10 @@ def repo_dependencies_view(request, repo_id):
             repo_in_db = Scanned_Repo.objects.get(repo_id=repo_id)
             if repo_in_db.repo_last_checked_date > older_than_90_days.date():
                 if repo_in_db and not repo_in_db.repo_scan_error:
+                    name = repo_in_db.repo_name.split(sep='"')[1].strip()
                     dep_in_db = Dependency.objects.filter(dependency__repo=repo_in_db).values('dependency_name', 'dependency_language', 'dependency_license','dependency_license_last_checked_date')
                     serializer = Dependency_Serializer(dep_in_db, many=True)
-                    return JsonResponse({ 'status': 'true', 'results': serializer.data}, safe=False)
+                    return JsonResponse({ 'status': 'true', 'results': serializer.data, 'name': name, 'link': repo_in_db.repo_url, 'date':repo_in_db.repo_last_checked_date}, safe=False)
                 else:
                     return JsonResponse({ 'status': 'false', 'results': repo_in_db.repo_scan_error_message}, safe=False)
             else:
@@ -93,15 +94,19 @@ def repo_scan_status_view(request, repo_id):
             repo_in_db = Scanned_Repo.objects.get(repo_id=repo_id)
             
             if repo_in_db.repo_scan_status == 'none':
+                print(repo_in_db.repo_scan_status)
                 return JsonResponse({ 'status': 'none'}, safe=False)
                 
             elif repo_in_db.repo_scan_status == 'started':
+                print(repo_in_db.repo_scan_status)
                 return JsonResponse({ 'status': 'started'}, safe=False) 
 
             elif repo_in_db.repo_scan_status == 'completed':
+                print(repo_in_db.repo_scan_status)
                 return JsonResponse({ 'status': 'completed'}, safe=False)        
         
             else:
+                print(repo_in_db.repo_scan_status)
                 return JsonResponse({ 'status': 'error'}, safe=False)
 
     else:
