@@ -63,12 +63,12 @@ def home_view(request, *args, **kwargs):
             validRepo = True
             try:
                 repo_connection = open_github_repo(repo_path)
-                print(repo_connection.clone_url)
             except Exception as error:
                 url_instructons_message = error
                 validRepo = False
 
             if repo_connection:
+                # print('clone url', str(repo_connection.clone_url)[:-4])
                 continue_marker = False
                 if repo_connection.size>20000:
                     validRepo = False

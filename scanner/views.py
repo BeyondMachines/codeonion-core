@@ -101,6 +101,7 @@ def save_repo(repository, store, language):
     new_repo.repo_name = repository
     new_repo.repo_store = store
     new_repo.repo_primary_language = language
+    new_repo.repo_url = str(repository.clone_url)[:-4]
     new_repo.save()
     return(new_repo)
 
@@ -164,7 +165,7 @@ def scan_github_repo(repo_name):
     if dependency_files: 
         print("looping through dependency files")
         dependency_dict = get_dependencies_from_dep_files(repository, dependency_files, 'python')
-        print(dependency_dict)
+        # print(dependency_dict)
         scan_status = scan_repo_dependencies(repo_in_db, dependency_dict, 'python')
         Scanned_Repo.objects.filter(repo_name=repository,repo_store='github').update(repo_last_checked_date=datetime.datetime.now().date())
         # dep_in_db = Repo_Dependency_Pair.objects.filter(repo = repo_in_db)
@@ -241,11 +242,11 @@ def get_dependency_files_from_repo(repository, language):
         while contents:
             file_content = contents.pop(0)
             if file_content.type == "dir":
-                print(file_content)
+                # print(file_content)
                 contents.extend(repository.get_contents(file_content.path))  # if we find a 
             else:
                 if file_content.name in ["requirements.txt","requirements.in","Pipfile.lock"]:  # these are the files we are looking for (this should be pulled up from database)
-                    print(file_content.name)
+                    # print(file_content.name)
                     dependency_files.append(file_content)  # END of loop to search through all repo contents for dependency files
     return(dependency_files)
 
