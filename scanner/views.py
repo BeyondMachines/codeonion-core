@@ -72,7 +72,7 @@ def open_github_repo(repository):
     try:
         r = g.get_repo(repository)
     except GithubException as error:
-        raise Exception('You didn\'t enter a valid GitHub Repo. The URL you entered is:' + repository)
+        raise Exception('There\'s an error accessing the repository: ' + repository + " Error is: " + str(error.data['message']))
     return r
     # if r.language.lower() in ['python']:
     #     r1 = scan_github_repo(r)
@@ -241,9 +241,11 @@ def get_dependency_files_from_repo(repository, language):
         while contents:
             file_content = contents.pop(0)
             if file_content.type == "dir":
+                print(file_content)
                 contents.extend(repository.get_contents(file_content.path))  # if we find a 
             else:
                 if file_content.name in ["requirements.txt","requirements.in","Pipfile.lock"]:  # these are the files we are looking for (this should be pulled up from database)
+                    print(file_content.name)
                     dependency_files.append(file_content)  # END of loop to search through all repo contents for dependency files
     return(dependency_files)
 

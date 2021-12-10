@@ -63,47 +63,52 @@ def home_view(request, *args, **kwargs):
             validRepo = True
             try:
                 repo_connection = open_github_repo(repo_path)
-                
+                print(repo_connection.clone_url)
             except Exception as error:
                 url_instructons_message = error
-            if repo_connection:
-                
-                repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
-                # print('check_repo_in_db', repo_in_db, repo_exists, older)
-                if repo_exists and not older:
-                    # print('if repo exists and not older', repo_in_db, repo_exists, older)
-                    repo_scan_started = True
-                    repo_scan_completed = True
-                    repo_uuid = repo_in_db.repo_id
-                    print('repo_uuid', repo_uuid)
-                elif repo_exists and older:
-                    # print('if repo exists and older', repo_in_db, repo_exists, older)
-                    repo_uuid = repo_in_db.repo_id
-                    # print('repo_uuid', repo_uuid)
-                    repo_scan_started = True
-                    scan_response = scan_github_repo(repo_path)
-                    if os.environ.get('AWS_REGION'):
-                        scan_response_id = scan_response.response_id
-                        repo_scan_completed = False
-                    else:
-                        scan_response_id = scan_response
-                        # repo_scan_completed = True
-                        repo_scan_completed = False
+                validRepo = False
 
-                else:
-                    # print('if repo NOT exists', repo_in_db, repo_exists, older)
-                    repo_in_db = save_repo(repo_connection,'github','python')
-                    repo_uuid = repo_in_db.repo_id
-                    # print('repo_uuid', repo_uuid)
-                    repo_scan_started = True
-                    scan_response = scan_github_repo(repo_path)
-                    if os.environ.get('AWS_REGION'):
-                        scan_response_id = scan_response.response_id
-                        repo_scan_completed = False
+            if repo_connection:
+                if repo_connection.size<20000:
+                    repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
+                    # print('check_repo_in_db', repo_in_db, repo_exists, older)
+                    if repo_exists and not older:
+                        # print('if repo exists and not older', repo_in_db, repo_exists, older)
+                        repo_scan_started = True
+                        repo_scan_completed = True
+                        repo_uuid = repo_in_db.repo_id
+                        print('repo_uuid', repo_uuid)
+                    elif repo_exists and older:
+                        # print('if repo exists and older', repo_in_db, repo_exists, older)
+                        repo_uuid = repo_in_db.repo_id
+                        # print('repo_uuid', repo_uuid)
+                        repo_scan_started = True
+                        scan_response = scan_github_repo(repo_path)
+                        if os.environ.get('AWS_REGION'):
+                            scan_response_id = scan_response.response_id
+                            repo_scan_completed = False
+                        else:
+                            scan_response_id = scan_response
+                            # repo_scan_completed = True
+                            repo_scan_completed = False
+
                     else:
-                        scan_response_id = scan_response
-                        # repo_scan_completed = True
-                        repo_scan_completed = False
+                        # print('if repo NOT exists', repo_in_db, repo_exists, older)
+                        repo_in_db = save_repo(repo_connection,'github','python')
+                        repo_uuid = repo_in_db.repo_id
+                        # print('repo_uuid', repo_uuid)
+                        repo_scan_started = True
+                        scan_response = scan_github_repo(repo_path)
+                        if os.environ.get('AWS_REGION'):
+                            scan_response_id = scan_response.response_id
+                            repo_scan_completed = False
+                        else:
+                            scan_response_id = scan_response
+                            # repo_scan_completed = True
+                            repo_scan_completed = False
+                else:
+                    validRepo = False
+                    url_instructons_message = "Repo " + repo_connection.name + " is too large - " + str(int(repo_connection.size/1000)) + "MB." + " We don't support scanning of repos larger than 20MB with our free service."
 
         else:
             url_instructons_message = 'You didn\'t enter a GitHub URL. The URL you entered is: ' + request_url
