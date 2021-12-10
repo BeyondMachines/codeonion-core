@@ -69,7 +69,16 @@ def home_view(request, *args, **kwargs):
                 validRepo = False
 
             if repo_connection:
-                if repo_connection.size<20000:
+                continue_marker = False
+                if repo_connection.size>20000:
+                    validRepo = False
+                    url_instructons_message = "Repo " + repo_connection.name + " is too large - " + str(int(repo_connection.size/1000)) + "MB." + " We don't support scanning of repos larger than 20MB with our free service."
+                elif str(repo_connection.language).lower()!='python':
+                    validRepo = False
+                    url_instructons_message = "Repo " + repo_connection.name + " is marked as " + repo_connection.language + ". We support only Python repos at this moment."
+                else:
+                    continue_marker = True
+                if continue_marker:
                     repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
                     # print('check_repo_in_db', repo_in_db, repo_exists, older)
                     if repo_exists and not older:
@@ -106,10 +115,6 @@ def home_view(request, *args, **kwargs):
                             scan_response_id = scan_response
                             # repo_scan_completed = True
                             repo_scan_completed = False
-                else:
-                    validRepo = False
-                    url_instructons_message = "Repo " + repo_connection.name + " is too large - " + str(int(repo_connection.size/1000)) + "MB." + " We don't support scanning of repos larger than 20MB with our free service."
-
         else:
             url_instructons_message = 'You didn\'t enter a GitHub URL. The URL you entered is: ' + request_url
             validRepo = False
