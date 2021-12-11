@@ -43,14 +43,16 @@ let spinner = document.getElementById('spinner');
    let pdfButton = document.getElementById("pdf");
    if(pdfButton){
     pdfButton.onclick= function(){
+
+      
+      let results = document.getElementById("info");
+      
+      
+       document.getElementById("info").classList.add('text-black');
        
-       let results = document.getElementById("response_table");
-
-       document.getElementById("table").classList.add('bg-dark');
-
        let opt = {
          margin: 1,
-         filename: `${repo_name}_dependencies.pdf`,
+         filename: `${a.name}_dependencies.pdf`,
          image: { type: 'jpeg', quality: 0.98 },
          html2canvas: { scale: 2 },
          jsPDF:  { unit: 'in', format:'letter', orientation: 'portrait'}
@@ -80,4 +82,13 @@ let spinner = document.getElementById('spinner');
            document.getElementById("timer").innerHTML ='Scanning the repo for '+  minute + ":" + seconds + ' seconds';
              }
         }
+        let todayDate = document.getElementById("today-date")
+        if(todayDate){
+        var today = new Date();
+        var date = today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
+        todayDate.innerHTML ='Today date: ' + date
+        }
+
+      
+
 
