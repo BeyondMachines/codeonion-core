@@ -57,7 +57,7 @@ def get_repo_dependencies_from_db(repo_in_db):
 
 
 @csrf_exempt
-@require_http_methods(["POST"])
+@require_http_methods(["GET"])
 def scan_status_view(request, repo_id):
     # print(repo_id)
     if os.environ.get('AWS_REGION'): # Check whether AWS_REGION variable exists to see if running in AWS or locally
@@ -91,6 +91,7 @@ def scan_status_view(request, repo_id):
     #}
 
 @csrf_exempt
+@require_http_methods(["GET"])
 def repo_scan_status_view(request, repo_id):
     if request.method == 'GET':
         
