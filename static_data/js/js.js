@@ -45,10 +45,9 @@ let spinner = document.getElementById('spinner');
     pdfButton.onclick= function(){
 
       
-      let results = document.getElementById("info");
-      
-      
-       document.getElementById("info").classList.add('text-black');
+      let results = document.getElementById("response_table");
+
+       document.getElementById("table").classList.add('bg-dark');
        
        let opt = {
          margin: 1,
