@@ -31,8 +31,12 @@
 
 <p id="name" class="text-start"></p>
 <p id="link" class="text-start"></p>
+<p id="today-date" class="text-start"></p>
 <p id="date" class="text-start"></p>
-<p id="total" class="text-start"></p>
+<p id="total_dependencies" class="text-start"></p>
+<p id="total_licenses" class="text-start"></p>
+
+
 
 {% endif %}
 <div id="spinner" class="visually-hidden">
@@ -61,8 +65,7 @@
 <script type="text/javascript">
     // let's set up some variables
     
-    let repo_name = "{{repo_name}}"
-    console.log(repo_name)
+    
     let repo_id = "{{repo_uuid}}"; // the object that we'll be looking for in the APIs
     let repo_scan_started = "{{repo_scan_started}}";  // If the scan is started, go to long polling api to check when completed. 
     let repo_scan_completed = "{{repo_scan_completed}}";  // If the scan is completed, go to collecting the results
@@ -100,6 +103,8 @@
         }
     }
 
+    
+
     async function render() {
         // console.log('starting_render')
         response = await fetch(result_api_url)
@@ -111,10 +116,10 @@
         if (scan_status == 'true') {
             document.getElementById("date").innerHTML ='Last scanned date: ' + a.date
             document.getElementById("name").innerHTML ='Repository name: ' + a.name
-            document.getElementById("link").innerHTML = `Repository url: <span><a  class="text-decoration-none" target="_blank" href="${a.link}">${a.link}</a></span>`
+            document.getElementById("link").innerHTML = `Repository url: <span><a  class="text-decoration-none"rel="noopener" target="_blank" href="${a.link}">${a.link}</a></span>`
             var count = Object.keys(a.results).length;
-           
-            document.getElementById("total").innerHTML = `Found total dependencies: ${count}`
+            document.getElementById("total_dependencies").innerHTML = `Found total dependencies: ${count}`
+            
             if(count > 0){
                 document.getElementById('new_scan_btn').classList.remove('visually-hidden')
                 document.getElementById('pdf').classList.remove('visually-hidden')
@@ -122,13 +127,24 @@
                 var tableHeader = "<table id=\"table\" class=\"table table-borderless mt-5 text-white text-start\"><thead><tr><th>Dependency Name</th><th>Dependency Language</th><th>Dependency License</th><th>Last Scanned Date</th></tr></thead><tbody>"
                 var tableContent = "";
                 var tableFooter = "</tbody></table>";
-
+                let licenses = []
                 // Loop through the JSON and output each row in to a string.
+                
+               
                 for(i = 0; i < count; i++) {
-                    tableContent = tableContent + "<tr><td>" + a.results[i].dependency_name + "</td><td>" + a.results[i].dependency_language + "</td><td>" + a.results[i].dependency_license + "</td><td>" + a.results[i].dependency_license_last_checked_date + "</td></tr>";
+                    tableContent = tableContent + `<tr><td><a  class="text-white" rel="noopener" target="_blank" href="https://pypi.org/project/${a.results[i].dependency_name}">  ${a.results[i].dependency_name}  </td><td>${a.results[i].dependency_language}  </td><td> <a  class="text-white"rel="noopener" target="_blank" href="https://www.google.com/search?q=opensource.org+${a.results[i].dependency_license}"> ${a.results[i].dependency_license}  </td><td>  ${a.results[i].dependency_license_last_checked_date}  </td></tr>`;
+                    if(a.results[i].dependency_license != '' ){
+                    licenses.push(a.results[i].dependency_license)
+                      }
                     }
+                let unique = [...new Set(licenses)]
+                    console.log(unique)
+                    let uniqueNumber = unique.length
+                   
+                    document.getElementById("total_licenses").innerHTML = `Found total licenses: ${uniqueNumber}`
                 // return the table
                 document.getElementById("response_table").innerHTML = tableHeader + tableContent + tableFooter;
+              
            }else{
             document.getElementById("response_table").innerHTML = "<p>Unfortunately your requirements file doesn't have the standard seperators and our product can't read them properly</p>"  
 
@@ -158,7 +174,9 @@
         run()
     //run(repo_scan_started)
     
-    
+    function filter(){
+
+    }
 
        
 
