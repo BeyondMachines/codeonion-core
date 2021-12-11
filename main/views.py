@@ -9,6 +9,7 @@ from time import sleep
 import json
 import boto3
 import os
+import botocore
 
 # Import models
 
@@ -48,7 +49,6 @@ def home_view(request, *args, **kwargs):
     scan_response_id = None
     repo_connection = None
     repo_uuid = None
-    repo_name = None
     validRepo = False
     request_url = None
 
@@ -58,59 +58,64 @@ def home_view(request, *args, **kwargs):
         # web_site = 'https://'+str(request.POST.get('website'))  # this was the first prototype for zappa async. Keeping it here for reference
         request_url = request.POST.get('repository')
         
-        repo_name = request_url.split(sep='/')[-1].strip()
-
         # async_call_id = open_site(web_site) # this was the first prototype for zappa async. Keeping it here for reference
         valid_repo, repo_type, repo_path = check_valid_repo_url(request_url)
-        # print('check_valid_repo_url', valid_repo, repo_type, repo_path)
         if valid_repo:
             validRepo = True
             try:
                 repo_connection = open_github_repo(repo_path)
-                
             except Exception as error:
-                # print('open_github_repo', error)
                 url_instructons_message = error
+                validRepo = False
+
             if repo_connection:
-                
-                repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
-                # print('check_repo_in_db', repo_in_db, repo_exists, older)
-                if repo_exists and not older:
-                    # print('if repo exists and not older', repo_in_db, repo_exists, older)
-                    repo_scan_started = True
-                    repo_scan_completed = True
-                    repo_uuid = repo_in_db.repo_id
-                    print('repo_uuid', repo_uuid)
-                elif repo_exists and older:
-                    # print('if repo exists and older', repo_in_db, repo_exists, older)
-                    repo_uuid = repo_in_db.repo_id
-                    # print('repo_uuid', repo_uuid)
-                    repo_scan_started = True
-                    scan_response = scan_github_repo(repo_path)
-                    if os.environ.get('AWS_REGION'):
-                        scan_response_id = scan_response.response_id
-                        repo_scan_completed = False
-                    else:
-                        scan_response_id = scan_response
-                        # repo_scan_completed = True
-                        repo_scan_completed = False
-
+                # print('clone url', str(repo_connection.clone_url)[:-4])
+                continue_marker = False
+                if repo_connection.size>20000:
+                    validRepo = False
+                    url_instructons_message = "Repo " + repo_connection.name + " is too large - " + str(int(repo_connection.size/1000)) + "MB." + " We don't support scanning of repos larger than 20MB with our free service."
+                elif str(repo_connection.language).lower()!='python':
+                    validRepo = False
+                    url_instructons_message = "Repo " + repo_connection.name + " is marked as " + repo_connection.language + ". We support only Python repos at this moment."
                 else:
-                    # print('if repo NOT exists', repo_in_db, repo_exists, older)
-                    repo_in_db = save_repo(repo_connection,'github','python')
-                    repo_uuid = repo_in_db.repo_id
-                    # print('repo_uuid', repo_uuid)
-                    repo_scan_started = True
-                    scan_response = scan_github_repo(repo_path)
-                    if os.environ.get('AWS_REGION'):
-                        scan_response_id = scan_response.response_id
-                        repo_scan_completed = False
+                    continue_marker = True
+                if continue_marker:
+                    repo_in_db, repo_exists, older = check_repo_in_db(repo_connection)
+                    # print('check_repo_in_db', repo_in_db, repo_exists, older)
+                    if repo_exists and not older:
+                        # print('if repo exists and not older', repo_in_db, repo_exists, older)
+                        repo_scan_started = True
+                        repo_scan_completed = True
+                        repo_uuid = repo_in_db.repo_id
+                        print('repo_uuid', repo_uuid)
+                    elif repo_exists and older:
+                        # print('if repo exists and older', repo_in_db, repo_exists, older)
+                        repo_uuid = repo_in_db.repo_id
+                        # print('repo_uuid', repo_uuid)
+                        repo_scan_started = True
+                        scan_response = scan_github_repo(repo_path)
+                        if os.environ.get('AWS_REGION'):
+                            scan_response_id = scan_response.response_id
+                            repo_scan_completed = False
+                        else:
+                            scan_response_id = scan_response
+                            # repo_scan_completed = True
+                            repo_scan_completed = False
+
                     else:
-                        scan_response_id = scan_response
-                        # repo_scan_completed = True
-                        repo_scan_completed = False
-
-
+                        # print('if repo NOT exists', repo_in_db, repo_exists, older)
+                        repo_in_db = save_repo(repo_connection,'github','python')
+                        repo_uuid = repo_in_db.repo_id
+                        # print('repo_uuid', repo_uuid)
+                        repo_scan_started = True
+                        scan_response = scan_github_repo(repo_path)
+                        if os.environ.get('AWS_REGION'):
+                            scan_response_id = scan_response.response_id
+                            repo_scan_completed = False
+                        else:
+                            scan_response_id = scan_response
+                            # repo_scan_completed = True
+                            repo_scan_completed = False
         else:
             url_instructons_message = 'You didn\'t enter a GitHub URL. The URL you entered is: ' + request_url
             validRepo = False
@@ -122,11 +127,9 @@ def home_view(request, *args, **kwargs):
         #     response_id = async_call_id
         # END this was the first prototype for zappa async. Keeping it here for reference
 
-
     context = {
         'url': request_url,
         'validRepo' : validRepo,
-        'repo_name':repo_name,
         'url_instructons_message': url_instructons_message,
         'scope_message': scope_message,
         'repo_scan_completed': repo_scan_completed,
