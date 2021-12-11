@@ -40,7 +40,7 @@ def get_local_ssm_key(name):
 #     }
 #     return render(request, "home/home.html", context)
 
-@require_http_methods(["POST"])
+@require_http_methods(["GET", "POST"])
 def home_view(request, *args, **kwargs):
     scope_message = Message.objects.get(message_title="scope_message").message_text
     url_instructons_message = Message.objects.get(message_title="url_instructons_message").message_text
