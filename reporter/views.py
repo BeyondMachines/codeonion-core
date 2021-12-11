@@ -17,8 +17,10 @@ from scanner.models import Scanned_Repo, Repo_Dependency_Pair, Dependency
 
 from reporter.serializers import Repo_Dependency_Pair_Serializer, Dependency_Serializer
 
+from django.views.decorators.http import require_http_methods
 
 @csrf_exempt
+@require_http_methods(["GET"])
 def repo_dependencies_view(request, repo_id):
     if request.method == 'GET':
         older_than_90_days = datetime.datetime.now() - datetime.timedelta(90)
@@ -55,6 +57,7 @@ def get_repo_dependencies_from_db(repo_in_db):
 
 
 @csrf_exempt
+@require_http_methods(["POST"])
 def scan_status_view(request, repo_id):
     # print(repo_id)
     if os.environ.get('AWS_REGION'): # Check whether AWS_REGION variable exists to see if running in AWS or locally

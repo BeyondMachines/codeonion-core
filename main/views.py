@@ -20,6 +20,7 @@ from scanner.models import Repo_Dependency_Pair
 
 from scanner.views import open_github_repo, check_valid_repo_url, scan_github_repo, check_repo_in_db, generate_uuid, save_repo
 from reporter.views import get_repo_dependencies_from_db
+from django.views.decorators.http import require_http_methods # To restrict access to views based on the request method 
 
 # Create your views here.
 
@@ -39,7 +40,7 @@ def get_local_ssm_key(name):
 #     }
 #     return render(request, "home/home.html", context)
 
-
+@require_http_methods(["POST"])
 def home_view(request, *args, **kwargs):
     scope_message = Message.objects.get(message_title="scope_message").message_text
     url_instructons_message = Message.objects.get(message_title="url_instructons_message").message_text
